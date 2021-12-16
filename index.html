@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <input
+      type="text"
+      class="form-control"
+      id="keyword"
+      placeholder="가게 이름을 알려주세요."
+    />
+    <button type="button" class="search-btn" onclick="searchPlaces()">
+      검색
+    </button>
+    <ul id="placesList"></ul>
+
+    <div id="map" style="width: 750px; height: 350px"></div>
+    <script
+      type="text/javascript"
+      src="//dapi.kakao.com/v2/maps/sdk.js?appkey=0602e9988471965e96177d8d36f06db0&libraries=services"
+    ></script>
+
+    <script>
+      const ps = new kakao.maps.services.Places();
+
+      function searchPlaces() {
+        removeSearch();
+        const keyword = document.getElementById("keyword").value;
+        ps.keywordSearch(keyword, placesSearchCB);
+      }
+
+      function placesSearchCB(data, status, pagination) {
+        if (status === kakao.maps.services.Status.OK) {
+          displayPlaces(data);
+        } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
+          alert("no result");
+          return;
+        } else if (status === kakao.maps.services.Status.ERROR) {
+          alert("검색 결과 중 오류가 발생했습니다.");
+          return;
+        }
+      }
+
+      function displayPlaces(places) {
+        const listUl = document.getElementById("placesList");
+        console.log(places);
+        for (let i = 0; i < places.length; i++) {
+          const itemEl = getListItem(i, places[i]);
+          listUl.append(itemEl);
+        }
+      }
+
+      function getListItem(index, places) {
+        const el = document.createElement("li");
+        itemStr = places.place_name;
+        if (places.road_address_name) {
+          itemStr +=
+            "    <span>" +
+            places.road_address_name +
+            "</span>" +
+            '   <span class="jibun gray">' +
+            places.address_name +
+            "</span>";
+        } else {
+          itemStr += "    <span>" + places.address_name + "</span>";
+        }
+
+        itemStr += '  <span class="tel">' + places.phone + "</span>" + "</div>";
+
+        el.innerHTML = itemStr;
+        el.className = "item";
+
+        return el;
+      }
+
+      function removeSearch() {
+        const list = document.getElementById("placesList");
+        list.innerText = "";
+      }
+    </script>
+  </body>
+</html>
